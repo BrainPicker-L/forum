@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load likes_tags %}
+
+{% block title %}帖子列表{% endblock %}
+
+
+{% block content %}
+        <!-- Start of Page Container -->
+        <div class="page-container">
+            <div class="container">
+                <div class="row">
+
+                    <!-- start of page content -->
+                    <div class="span8 main-listing">
+                        {% for article in articles %}
+                        <article class="format-standard type-post hentry clearfix">
+
+                            <header class="clearfix">
+                                
+                                <h3 class="post-title">
+                                    <a href="single.html">{{ article.title }}</a>
+                                </h3>
+
+                                <div class="post-meta clearfix">
+                                    <span class="date">{{ article.created_time|date:"d" }} {{ article.create_month }}, {{ article.created_time|date:"20y" }}</span>
+                                    <span class="category"><a href="#" title="View all posts in Server &amp; Database">{{ article.article_type }}</a></span>
+                                    <span class="comments"><a href="#"
+                                                              title="Comment on Integrating WordPress with Your Website">3 Comments</a></span>
+                                    <span class="like-count">{% get_like_count article %}</span>
+                                </div><!-- end of post meta -->
+
+                            </header>
+
+                            <p>{{ article.content|striptags|truncatechars:120 }}
+                                <a class="readmore-link"
+                                   href="http://knowledgebase.inspirythemes.com/integrating-wordpress-with-your-website/">Read
+                                    more</a></p>
+
+                        </article>
+                        {% empty %}
+                        <div class="article">
+                            <h3>暂无帖子，敬请期待</h3>
+                        </div>
+                        {% endfor %}
+
+
+
+                        <div id="pagination">
+                            <a href="#" class="btn active">1</a>
+                            <a href="#" class="btn">2</a>
+                            <a href="#" class="btn">3</a>
+                            <a href="#" class="btn">Next »</a>
+                            <a href="#" class="btn">Last »</a>
+                        </div>
+
+                    </div>
+                    <!-- end of page content -->
+
+
+                    <!-- start of sidebar -->
+                    <aside class="span4 page-sidebar">
+
+                        <section class="widget">
+                            <div class="support-widget">
+                                <h3 class="title">Support</h3>
+                                <p class="intro">Need more support? If you did not found an answer, contact us for further
+                                    help.</p>
+                            </div>
+                        </section>
+
+
+                        <section class="widget">
+                            <h3 class="title">Featured Articles</h3>
+                            <ul class="articles">
+                                <li class="article-entry standard">
+                                    <h4><a href="single.html">Integrating WordPress with Your Website</a></h4>
+                                    <span class="article-meta">25 Feb, 2013 in <a href="#"
+                                                                                  title="View all posts in Server &amp; Database">Server &amp; Database</a></span>
+                                    <span class="like-count">66</span>
+                                </li>
+                                <li class="article-entry standard">
+                                    <h4><a href="single.html">WordPress Site Maintenance</a></h4>
+                                    <span class="article-meta">24 Feb, 2013 in <a href="#"
+                                                                                  title="View all posts in Website Dev">Website Dev</a></span>
+                                    <span class="like-count">15</span>
+                                </li>
+                                <li class="article-entry video">
+                                    <h4><a href="single.html">Meta Tags in WordPress</a></h4>
+                                    <span class="article-meta">23 Feb, 2013 in <a href="#"
+                                                                                  title="View all posts in Website Dev">Website Dev</a></span>
+                                    <span class="like-count">8</span>
+                                </li>
+                                <li class="article-entry image">
+                                    <h4><a href="single.html">WordPress in Your Language</a></h4>
+                                    <span class="article-meta">22 Feb, 2013 in <a href="#"
+                                                                                  title="View all posts in Advanced Techniques">Advanced Techniques</a></span>
+                                    <span class="like-count">6</span>
+                                </li>
+                            </ul>
+                        </section>
+
+
+                        <section class="widget"><h3 class="title">Categories</h3>
+                            <ul>
+                                <li><a href="#" title="Lorem ipsum dolor sit amet,">Advanced Techniques</a></li>
+                                <li><a href="#" title="Lorem ipsum dolor sit amet,">Designing in WordPress</a></li>
+                                <li><a href="#" title="Lorem ipsum dolor sit amet,">Server &amp; Database</a></li>
+                                <li><a href="#" title="Lorem ipsum dolor sit amet, ">Theme Development</a></li>
+                                <li><a href="#" title="Lorem ipsum dolor sit amet,">Website Dev</a></li>
+                                <li><a href="#" title="Lorem ipsum dolor sit amet,">WordPress for Beginners</a></li>
+                                <li><a href="#" title="Lorem ipsum dolor sit amet, ">WordPress Plugins</a></li>
+                            </ul>
+                        </section>
+
+                        <section class="widget">
+                            <h3 class="title">Recent Comments</h3>
+                            <ul id="recentcomments">
+                                <li class="recentcomments"><a href="#" rel="external nofollow" class="url">John Doe</a> on <a
+                                        href="#">Integrating WordPress with Your Website</a></li>
+                                <li class="recentcomments">saqib sarwar on <a href="#">Integrating WordPress with Your
+                                    Website</a></li>
+                                <li class="recentcomments"><a href="#" rel="external nofollow" class="url">John Doe</a> on <a
+                                        href="#">Integrating WordPress with Your Website</a></li>
+                                <li class="recentcomments"><a href="#" rel="external nofollow" class="url">Mr WordPress</a> on
+                                    <a href="#">Installing WordPress</a></li>
+                            </ul>
+                        </section>
+
+                    </aside>
+                    <!-- end of sidebar -->
+                </div>
+            </div>
+        </div>
+        <!-- End of Page Container -->
+{% endblock %}
