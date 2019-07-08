@@ -1,15 +1,2 @@
-# IDEA
-*.idea/
-
-# python
-
-*.pyc
-build/
-*.__pycache__/
-db.sqlite3
-*.migrations/
-*.settings.py
-article/migrations/
-comment/migrations/
+__pycache__/
 .idea/
-media/
