@@ -25,4 +25,9 @@ def get_comment_list(obj):
     content_type = ContentType.objects.get_for_model(obj)
     comments = Comment.objects.filter(content_type=content_type, object_id=obj.pk, parent=None)
     return comments.order_by('-comment_time')
-    
+
+
+@register.simple_tag
+def get_reply_count(obj):
+
+    return obj.root_comment.all().count()

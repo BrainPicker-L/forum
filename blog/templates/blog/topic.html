@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load comment_tags %}
+{% block content %}
+    <div class="panel panel-default">
+        <!-- Default panel contents -->
+        <div class="panel-body">
+            <ol class="breadcrumb">
+                <li><a href="#">Home</a></li>
+                <li><a href="#">{{ blog.blog_type }}</a></li>
+                <li class="active">{{ blog.title }}</li>
+            </ol>
+            <h1 class="topic-title">{{ blog.title }}</h1>
+            <div class="topic-meta row">
+                <div class="col-xs-2 col-sm-1">
+                    <img class="user-avatar" src="#" alt=""/>
+                </div>
+                <div class="col-xs-9 col-sm-10">
+                    <p class="text-muted">
+                        <a href="#">{{ blog.author }}</a>
+                        <br/>
+                        <span>Posted  in <a class="text-primary" href="#">{{ blog.blog_type }}</a>, </span>
+                        <span>viewed {{ view_count }} times</span>
+                    </p>
+                </div>
+            </div>
+            <div class="topic-content">
+                <p>{{ blog.content|safe }}</p>
+            </div>
+        </div>
+        {% if topic.appendix_set %}
+            <ul class="list-group">
+                {% for appendix in topic.appendix_set.all %}
+                    <div class="list-group-item list-appendix-item">
+                        <p class="appendix-meta">
+                            appendix {{number}}{appendix.pub_date|naturaltime}}
+                        </p>
+                        {{appendix.content_rendered | safe}}
+                    </div>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% if request.user == topic.user %}
+            <div class="panel-footer">
+                {% if topic.reply_count == 0 %}
+                    <a href="#"><span class="label label-success"></span></a>
+                {% endif %}
+                <a href="#"><span class="label label-warning"></span></a>
+            </div>
+        {% endif %}
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            {% if topic.reply_count %}
+
+            {% else %}
+
+            {% endif %}
+        </div>
+        <!-- List group -->
+        <ul class="list-group reply-list">
+            {% get_comment_list blog as comments %}
+            {% for comment in comments %}
+                <li class="list-group-item reply-item">
+                    <div class="topic-meta row">
+                        <div class="col-xs-2 col-sm-1">
+                            <img class="user-avatar" src="#" alt=""/>
+                        </div>
+                        <div class="col-xs-9 col-sm-10">
+                            <p class="text-muted">
+                                <a href="#">{{ comment.user.get_nickname_or_username }}</a> <br/>
+                                <span>({{ comment.comment_time|date:"Y-m-d H:i:s" }})</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="reply-content">
+                        <p>
+                            {{ comment.text|safe }}
+                        </p>
+                    </div>
+                    <a href="javascript:reply({{ comment.pk }});">回复</a>
+
+
+                    {% for reply in comment.root_comment.all %}
+                        <div class="reply">
+                            <span>{{ reply.user.get_nickname_or_username }}</span>
+                            <span>({{ reply.comment_time|date:"Y-m-d H:i:s" }})</span>
+                            <span>回复</span>
+                            <span>{{ reply.reply_to.get_nickname_or_username }}：</span>
+                            <div id="comment_{{ reply.pk }}">
+                                {{ reply.text|safe }}
+                            </div>
+                            <a href="javascript:reply({{ reply.pk }});">回复</a>
+                        </div>
+                    {% endfor %}
+
+                </li>
+            {% endfor %}
+            {% if not posts %}
+                <li class="list-group-item reply-item"><p>#</p></li>
+            {% endif %}
+        </ul>
+        <div class="panel-footer">
+            #
+        </div>
+    </div>
+
+    <div class="comment-area">
+        <h3 class="comment-area-title">提交评论</h3>
+        {% if user.is_authenticated %}
+            <form id="comment_form" action="{% url 'update_comment' %}" method="POST" style="overflow:hidden">
+                <label>{{ user.get_nickname_or_username }}，欢迎评论~</label>
+                <div id="reply_content_container" style="display:none;">
+                    <p id="reply_title">回复：</p>
+                    <div id="reply_content"></div>
+                </div>
+                {% csrf_token %}
+                {% get_comment_form blog as comment_form %}
+                {% for field in comment_form %}
+                    {{ field }}
+                {% endfor %}
+                <span id="comment_error" class="text-danger pull-left"></span>
+                <input type="submit" value="评论" class="btn btn-primary pull-right">
+            </form>
+        {% else %}
+            您尚未登录，登录之后方可评论~
+            <a class="btn btn-primary" href="{% url 'login' %}?from={{ request.get_full_path }}">登录</a>
+            <span> or </span>
+            <a class="btn btn-danger" href="{% url 'register' %}?from={{ request.get_full_path }}">注册</a>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block script_extends %}
+    <script type="text/javascript">
+        String.prototype.format = function(){
+            var str = this;
+            for (var i = 0; i < arguments.length; i++) {
+                var str = str.replace(new RegExp('\\{' + i + '\\}', 'g'), arguments[i])
+            };
+            return str;
+        }
+        function reply(reply_comment_id){
+            // 设置值
+            $('#reply_comment_id').val(reply_comment_id);
+            var html = $("#comment_" + reply_comment_id).html();
+            $('#reply_content').html(html);
+            $('#reply_content_container').show();
+
+            $('html').animate({scrollTop: $('#comment_form').offset().top - 60}, 300, function(){
+                CKEDITOR.instances['id_text'].focus();
+            });
+        }
+        function numFormat(num){
+            return ('00' + num).substr(-2);
+        }
+        function timeFormat(timestamp){
+            var datetime = new Date(timestamp * 1000);
+            var year = datetime.getFullYear();
+            var month = numFormat(datetime.getMonth() + 1);
+            var day = numFormat(datetime.getDate());
+            var hour = numFormat(datetime.getHours());
+            var minute = numFormat(datetime.getMinutes());
+            var second = numFormat(datetime.getSeconds());
+            return year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second;
+        }
+        $("#comment_form").submit(function(){
+            // 判断是否为空
+            $("#comment_error").text('');
+            if(CKEDITOR.instances["id_text"].document.getBody().getText().trim()==''){
+                $("#comment_error").text('评论内容不能为空');
+                return false;
+            }
+
+            // 更新数据到textarea
+            CKEDITOR.instances['id_text'].updateElement();
+
+            // 异步提交
+            $.ajax({
+                url: "{% url 'update_comment' %}",
+                type: 'POST',
+                data: $(this).serialize(),
+                cache: false,
+                success: function(data){
+                    console.log(data);
+                    if(data['status']=="SUCCESS"){
+                        if($('#reply_comment_id').val()=='0'){
+                            // 插入评论
+                            var comment_html = '<div id="root_{0}" class="comment">' +
+                                '<span>{1}</span>' +
+                                '<span>({2})：</span>' +
+                                '<div id="comment_{0}">{3}</div>' +
+                                '<div class="like" onclick="likeChange(this, \'{4}\', {0})">' +
+                                    '<span class="glyphicon glyphicon-thumbs-up"></span> ' +
+                                    '<span class="liked-num">0</span>' +
+                                '</div>' +
+                                '<a href="javascript:reply({0});">回复</a>' +
+                                '</div>';
+                            comment_html = comment_html.format(data['pk'], data['username'], timeFormat(data['comment_time']), data['text'], data['content_type']);
+                            $("#comment_list").prepend(comment_html);
+                        }else{
+                            // 插入回复
+                            var reply_html = '<div class="reply">' +
+                                        '<span>{1}</span>' +
+                                        '<span>({2})</span>' +
+                                        '<span>回复</span>' +
+                                        '<span>{3}：</span>' +
+                                        '<div id="comment_{0}">{4}</div>' +
+                                        '<div class="like" onclick="likeChange(this, \'{5}\', {0})">' +
+                                            '<span class="glyphicon glyphicon-thumbs-up\"></span> ' +
+                                            '<span class="liked-num">0</span>' +
+                                        '</div>' +
+                                        '<a href="javascript:reply({0});">回复</a>' +
+                                    '</div>';
+                            reply_html = reply_html.format(data['pk'], data['username'], timeFormat(data['comment_time']), data['reply_to'], data['text'], data['content_type']);
+                            $("#root_" + data['root_pk']).append(reply_html);
+                        }
+
+                        // 清空编辑框的内容
+                        CKEDITOR.instances['id_text'].setData('');
+                        $('#reply_content_container').hide();
+                        $('#reply_comment_id').val('0');
+                        $('#no_comment').remove();
+                        $("#comment_error").text('评论成功');
+                    }else{
+                        // 显示错误信息
+                        $("#comment_error").text(data['message']);
+                    }
+                },
+                error: function(xhr){
+                    console.log(xhr);
+                }
+            });
+            return false;
+        });
+        function likeChange(obj, content_type, object_id){
+            var is_like = obj.getElementsByClassName('active').length == 0
+            $.ajax({
+                url: "{% url 'like_change' %}",
+                type: 'GET',
+                data: {
+                    content_type: content_type,
+                    object_id: object_id,
+                    is_like: is_like
+                },
+                cache: false,
+                success: function(data){
+                    console.log(data)
+                    if(data['status']=='SUCCESS'){
+                        // 更新点赞状态
+                        var element = $(obj.getElementsByClassName('glyphicon'));
+                        if(is_like){
+                            element.addClass('active');
+                        }else{
+                            element.removeClass('active');
+                        }
+                        // 更新点赞数量
+                        var liked_num = $(obj.getElementsByClassName('liked-num'));
+                        liked_num.text(data['liked_num']);
+                    }else{
+                        if(data['code']==400){
+                            $('#login_modal').modal('show');
+                        }else{
+                            alert(data['message']);
+                        }
+                    }
+                },
+                error: function(xhr){
+                    console.log(xhr)
+                }
+            });
+        }
+    </script>
+{% endblock %}

@@ -46,7 +46,7 @@ def get_blog_list_common_data(request, blogs_all_list):
 def blog_list(request):
     blogs_all_list = Blog.objects.all()
     context = get_blog_list_common_data(request, blogs_all_list)
-    return render(request, 'blog/blog_list.html', context)
+    return render(request, 'blog/list.html', context)
 
 def blogs_with_type(request, blog_type_pk):
     blog_type = get_object_or_404(BlogType, pk=blog_type_pk)
@@ -69,6 +69,19 @@ def blog_detail(request, blog_pk):
     context['previous_blog'] = Blog.objects.filter(created_time__gt=blog.created_time).last()
     context['next_blog'] = Blog.objects.filter(created_time__lt=blog.created_time).first()
     context['blog'] = blog
-    response = render(request, 'blog/blog_detail.html', context) # 响应
+    response = render(request, 'blog/topic.html', context) # 响应
     response.set_cookie(read_cookie_key, 'true') # 阅读cookie标记
+    return response
+
+
+def test(request, blog_pk):
+    blog = get_object_or_404(Blog, pk=blog_pk)
+    read_cookie_key = read_statistics_once_read(request, blog)
+
+    context = {}
+    context['previous_blog'] = Blog.objects.filter(created_time__gt=blog.created_time).last()
+    context['next_blog'] = Blog.objects.filter(created_time__lt=blog.created_time).first()
+    context['blog'] = blog
+    response = render(request, 'blog/blog_detail.html', context)  # 响应
+    response.set_cookie(read_cookie_key, 'true')  # 阅读cookie标记
     return response

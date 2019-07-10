@@ -35,7 +35,8 @@ def login(request):
     context = {}
     context['login_form'] = login_form
     return render(request, 'user/login.html', context)
-
+from avatar_generator import identicon
+from mysite.settings import MEDIA_ROOT
 def register(request):
     if request.method == 'POST':
         reg_form = RegForm(request.POST)
@@ -46,6 +47,14 @@ def register(request):
             # 创建用户
             user = User.objects.create_user(username, email, password)
             user.save()
+            profile, created =Profile.objects.get_or_create(user=user)
+
+            img = identicon.render_identicon(abs(hash(username)) % (10 ** 20), 20)
+            save_path = "./media/avatar/"+username+'.png'
+            img.save(save_path)
+            profile.avatar = save_path
+            profile.nickname = username
+            profile.save()
             # 登录用户
             user = auth.authenticate(username=username, password=password)
             auth.login(request, user)

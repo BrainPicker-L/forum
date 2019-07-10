@@ -10,9 +10,12 @@
     <link rel="stylesheet" href="{% static 'bootstrap-3.3.7/css/bootstrap.min.css' %}">
     <script type="text/javascript" src="{% static 'jquery-1.12.4.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'bootstrap-3.3.7/js/bootstrap.min.js' %}"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'main.css' %}"/>
     {% block header_extends %}{% endblock %}
 </head>
-<body>
+<body style="background: url('/static/image/bg.jpg');">
     <div class="navbar navbar-default navbar-fixed-top" role="navigation">
         <div class="container-fluid">
             <div class="navbar-header">
@@ -45,7 +48,7 @@
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">
                                 {% if user.has_nickname %}
-                                    {{ user.username }}({{ user.get_nickname }}) 
+                                    <img style="width: 35px;height: 35px;" src="/{{ user.profile.avatar }}" alt=""/> &nbsp  &nbsp 昵称：{{ user.get_nickname }}
                                 {% else %}
                                     {{ user.username }}
                                 {% endif %}
@@ -64,8 +67,24 @@
             </div>
         </div>
     </div>
+<div id="main" class="container">
+    <div class="row">
+        <div class="col-lg-8"> <!-- LEFT -->
+            {% block content %}{% endblock %}
+        </div><!-- END LEFT -->
+        <div class="col-lg-4"> <!-- RIGHT -->
+            {% block widgtet_before %}{% endblock %}
+            {% if request.user.is_authenticated %}
+                {% include 'widgets/authenticated_user_panel.html' %}
+            {% else %}
+                {% include 'widgets/authenticated_user_panel.html' %}
+            {% endif %}
 
-    {% block content %}{% endblock %}
+            {% block widget_after %}{% endblock %}
+        </div><!-- END RIGHT -->
+    </div>
+</div>
+
 
     <!-- Modal -->
     <div class="modal fade" id="login_modal" tabindex="-1" role="dialog">
@@ -94,6 +113,7 @@
             </div>
         </div>
     </div>
+
     <script type="text/javascript">
         $("#login_medal_form").submit(function(event){
             event.preventDefault();

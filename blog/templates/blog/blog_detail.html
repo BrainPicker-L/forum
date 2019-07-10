@@ -8,47 +8,41 @@
 
 {% block header_extends %}
     <link rel="stylesheet" href="{% static 'blog/blog.css' %}">
-    <script type="text/javascript" src="{% static "ckeditor/ckeditor-init.js" %}"></script>
-    <script type="text/javascript" src="{% static "ckeditor/ckeditor/ckeditor.js" %}"></script>
+    <script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
 {% endblock %}
 
 {# 页面内容 #}
 {% block content %}
-    <div class="container">
-        <div class="row">
-            <div class="col-xs-10 col-xs-offset-1">
-                <h3>{{ blog.title }}</h3>
-                <ul class="blog-info-description">
-                    <li>作者：{{ blog.author }}</li>
-                    <li>分类：<a href="{% url 'blogs_with_type' blog.blog_type.pk %}">{{ blog.blog_type }}</a></li>
-                    <li>发表日期：{{ blog.created_time|date:"Y-m-d H:i:s" }}</li>
-                    <li>阅读({{ blog.get_read_num }})</li>
-                    <li>评论({% get_comment_count blog %})</li>
-                </ul>              
-                <div class="blog-content">{{ blog.content|safe }}</div>
-                <div class="like" onclick="likeChange(this, '{% get_content_type blog %}', {{ blog.pk }})">
-                    <span class="glyphicon glyphicon-thumbs-up {% get_like_status blog %}"></span>
-                    <span class="liked-num">{% get_like_count blog %}</span>
-                    <span>喜欢</span>
+
+    <div class="panel panel-default">
+        <!-- Default panel contents -->
+        <div class="panel-body">
+            <ol class="breadcrumb">
+                <li><a href="#">Home</a></li>
+                <li><a href="#">{{ blog.blog_type }}</a></li>
+                <li class="active">{{ blog.title }}</li>
+            </ol>
+            <h1 class="topic-title">{{ blog.title }}</h1>
+            <div class="topic-meta row">
+                <div class="col-xs-2 col-sm-1">
+                    <img class="user-avatar" src="/{{ blog.author.profile.avatar }}" alt=""/>
                 </div>
-                <div class="blog-more">
-                    <p>上一篇：
-                        {% if previous_blog %}
-                            <a href="{% url 'blog_detail' previous_blog.pk %}">{{ previous_blog.title }}</a>
-                        {% else %}
-                            没有了
-                        {% endif %}
-                    </p>
-                    <p>下一篇：
-                        {% if next_blog %}
-                            <a href="{% url 'blog_detail' next_blog.pk %}">{{ next_blog.title }}</a>
-                        {% else %}
-                            没有了
-                        {% endif %}
+                <div class="col-xs-9 col-sm-10">
+                    <p class="text-muted">
+                        <a href="#">{{ blog.author }}</a>
+                        <br/>
+                        <span>Posted  in <a class="text-primary" href="#">{{ blog.blog_type }}</a>, </span>
+                        <span>viewed {{ view_count }} times</span>
                     </p>
                 </div>
             </div>
+            <div class="topic-content">
+                <p>{{ blog.content|safe }}</p>
+            </div>
         </div>
+        </div>
+        <div class="panel panel-default">
         <div class="row">
             <div class="col-xs-10 col-xs-offset-1">
                 <div class="comment-area">
@@ -80,9 +74,19 @@
                     <div id="comment_list">
                         {% get_comment_list blog as comments %}
                         {% for comment in comments %}
-                            <div id="root_{{ comment.pk }}" class="comment">
-                                <span>{{ comment.user.get_nickname_or_username }}</span>
-                                <span>({{ comment.comment_time|date:"Y-m-d H:i:s" }})：</span>
+                            <div id="root_{{ comment.pk }}" style="border-bottom: 1px solid #ccc;margin-bottom: 0.5em;padding-bottom: 0.5em;">
+                                <div class="topic-meta row">
+                                    <div class="col-xs-2 col-sm-1">
+                                        <span><img class="user-avatar" src="/{{ comment.user.profile.avatar }}" alt=""/></span>
+                                    </div>
+                                    <div class="col-xs-9 col-sm-10">
+                                        <p class="text-muted">
+                                            <a href="#">{{ comment.user.get_nickname_or_username }}</a>
+                                            <span>({{ comment.comment_time|date:"Y-m-d H:i:s" }})：</span>
+                                        </p>
+                                    </div>
+                                </div>
+
                                 <div id="comment_{{ comment.pk }}">
                                     {{ comment.text|safe }}
                                 </div>
@@ -91,13 +95,16 @@
                                     <span class="liked-num">{% get_like_count comment %}</span>
                                 </div>
                                 <a href="javascript:reply({{ comment.pk }});">回复</a>
+                                <a>评论 {% get_reply_count comment %}</a>
 
-                                
                                 {% for reply in comment.root_comment.all %}
-                                    <div class="reply">
+                                    <div class="reply" style="border-bottom: 1px dashed #ccc;margin-bottom: 0.5em;padding-bottom: 0.5em;">
+                                        <span><img class="user-avatar" src="/{{ reply.user.profile.avatar }}" alt=""/></span>
                                         <span>{{ reply.user.get_nickname_or_username }}</span>
                                         <span>({{ reply.comment_time|date:"Y-m-d H:i:s" }})</span>
                                         <span>回复</span>
+
+
                                         <span>{{ reply.reply_to.get_nickname_or_username }}：</span>
                                         <div id="comment_{{ reply.pk }}">
                                             {{ reply.text|safe }}
@@ -107,7 +114,7 @@
                                             <span class="liked-num">{% get_like_count reply %}</span>
                                         </div>
                                         <a href="javascript:reply({{ reply.pk }});">回复</a>
-                                    </div>                                    
+                                    </div>
                                 {% endfor %}
                             </div>
                         {% empty %}
@@ -117,7 +124,7 @@
                 </div>
             </div>
         </div>
-    </div>    
+    </div>
 {% endblock %}
     
 {% block script_extends %}

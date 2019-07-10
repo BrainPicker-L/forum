@@ -7,8 +7,8 @@ from django.core.cache import cache
 from django.urls import reverse
 from read_statistics.utils import get_seven_days_read_data, get_today_hot_data, get_yesterday_hot_data
 from blog.models import Blog
-
-
+import json
+from django.http import HttpResponse
 def get_7_days_hot_blogs():
     today = timezone.now().date()
     date = today - datetime.timedelta(days=7)
@@ -36,3 +36,9 @@ def home(request):
     context['yesterday_hot_data'] = get_yesterday_hot_data(blog_content_type)
     context['hot_blogs_for_7_days'] = hot_blogs_for_7_days
     return render(request, 'home.html', context)
+
+
+def wiki(request):
+    with open('./wikiData.txt','r') as f:
+        data = f.read()
+    return HttpResponse(data)

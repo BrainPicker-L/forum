@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="panel panel-default">
+        <div class="panel-body panel-subtitle">
+            <span class="label label-success">{{ panel_title }}</span>
+
+              <span class="pull-right ordering">
+                Order:
+                <span>
+                  <a href="#">Last Replied</a>
+                </span>
+                <span>
+                  <a href="#">Topic Date</a>
+                </span>
+              </span>
+
+        </div>
+        <!-- List group -->
+        <ul class="list-group topic-list">
+            {% for blog in blogs %}
+                <li class="list-group-item topic-entry">
+                    <div class="entry media">
+                        <div class="media-left media-middle">
+                            <a class="list-avatar-link" href="#"><img class="user-avatar" src="/{{ blog.author.profile.avatar }}"></a>
+                        </div>
+                        <div class="media-body media-middle">
+                            <a href="{% url 'blog_detail' blog.pk %}" class="entry-link">
+                                {{ blog.title }}
+                            </a>
+                            <p class="entry-meta">
+                                {% if blog.pk <= 40 %}
+                                <span class="meta">
+                                    <span class="label label-info meta-top">
+                                        TOP
+                                    </span>
+                                </span>
+                                {% endif %}
+                                <span class="meta">
+                                    <a href="#">
+                                        <span class="label label-default meta-node">
+                                        {{ blog.blog_type }}
+                                        </span>
+                                    </a>
+                                </span>
+                                    <span class="meta meta-username">
+                                        <a href="#">
+                                            {{ blog.author.username }}
+                                        </a>
+                                    </span>
+                                    <span class="meta meta-pub_date">
+                                        {{ blog.created_time }}
+                                    </span>
+                                    <span class="meta meta-last_replied hidden-xs">
+                                    </span>
+                            </p>
+                        </div>
+                        <div class="media-right media-middle">
+                            <span class="badge">{{ topic.reply_count }}</span>
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+        <div class="panel-footer">
+            <div class="paginator">
+                    <ul class="pagination">
+                        {# 上一页 #}
+                        <li>
+                            {% if page_of_blogs.has_previous %}
+                                <a href="?page={{ page_of_blogs.previous_page_number }}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            {% else %}
+                                <span aria-hidden="true">&laquo;</span>
+                            {% endif %}
+                        </li>
+                        {# 全部页码 #}
+                        {% for page_num in page_range %}
+                            {% if page_num == page_of_blogs.number %}
+                                <li class="active"><span>{{ page_num }}</span></li>
+                            {% else %}
+                                {% if page_num == '...' %}
+                                    <li><span>{{ page_num }}</span></li>
+                                {% else %}
+                                    <li><a href="?page={{ page_num }}">{{ page_num }}</a></li>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        {# 下一页 #}
+                        <li>
+                            {% if page_of_blogs.has_next %}
+                                <a href="?page={{ page_of_blogs.next_page_number }}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            {% else %}
+                                <span aria-hidden="true">&raquo;</span>
+                            {% endif %}
+                        </li>
+                    </ul>
+                    <p>
+                        共有{{ page_of_blogs.paginator.count }}篇帖子，
+                        当前第{{ page_of_blogs.number }}页，共{{ page_of_blogs.paginator.num_pages }}页
+                    </p>
+                </div>
+        </div>
+    </div>
+{% endblock %}
